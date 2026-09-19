@@ -489,8 +489,11 @@ async function overpassQuery(q: string) {
     try {
       const res = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "text/plain", "User-Agent": "CoastalAgriMap/1.0" },
-        body: q,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "User-Agent": "CoastalAgriMap/1.0",
+        },
+        body: new URLSearchParams({ data: q }),
         signal: timeoutSignal(8000),
       });
       if (!res.ok) continue;
@@ -533,6 +536,8 @@ async function overpassNear(lat: number, lng: number) {
   way(around:20,${lat},${lng})["building"];
   node(around:20,${lat},${lng})["building"];
   way(around:20,${lat},${lng})["waterway"];
+  way(around:120,${lat},${lng})["waterway"="river"];
+  way(around:120,${lat},${lng})["waterway"="riverbank"];
   way(around:20,${lat},${lng})["natural"];
   node(around:20,${lat},${lng})["natural"];
   way(around:20,${lat},${lng})["water"];
