@@ -231,7 +231,7 @@ function DemoPage() {
   const [liveWeather, setLiveWeather] = useState<LiveWeather | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [fieldParameters, setFieldParameters] = useState<FieldParameters>(() =>
-    toFieldParameters(PROFILE_BY_NAME.Mandya!),
+    toFieldParameters(PROFILE_BY_NAME["Mandya"]!),
   );
 
   const [soil, setSoil] = useState("loam");
@@ -273,7 +273,7 @@ function DemoPage() {
         const lat = Number(pos.coords.latitude.toFixed(4));
         const lon = Number(pos.coords.longitude.toFixed(4));
 
-        const profile = nearestDistrictProfile(lat, lon) ?? PROFILE_BY_NAME.Mandya!;
+        const profile = nearestDistrictProfile(lat, lon) ?? PROFILE_BY_NAME["Mandya"]!;
         const parameters = toFieldParameters(profile);
 
         const info: LocationInfo = {
