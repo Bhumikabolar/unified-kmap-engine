@@ -18,6 +18,7 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DonationRouteImport } from './routes/donation'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as FieldAnalysisRouteImport } from './routes/field-analysis'
+import { Route as KmapRouteImport } from './routes/kmap'
 import { Route as OutreachRouteImport } from './routes/outreach'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SolutionsRouteImport } from './routes/solutions'
@@ -67,6 +68,11 @@ const FieldAnalysisRoute = FieldAnalysisRouteImport.update({
   path: '/field-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KmapRoute = KmapRouteImport.update({
+  id: '/kmap',
+  path: '/kmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OutreachRoute = OutreachRouteImport.update({
   id: '/outreach',
   path: '/outreach',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/donation': typeof DonationRoute
   '/education': typeof EducationRoute
   '/field-analysis': typeof FieldAnalysisRoute
+  '/kmap': typeof KmapRoute
   '/outreach': typeof OutreachRoute
   '/pricing': typeof PricingRoute
   '/solutions': typeof SolutionsRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/donation': typeof DonationRoute
   '/education': typeof EducationRoute
   '/field-analysis': typeof FieldAnalysisRoute
+  '/kmap': typeof KmapRoute
   '/outreach': typeof OutreachRoute
   '/pricing': typeof PricingRoute
   '/solutions': typeof SolutionsRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/donation': typeof DonationRoute
   '/education': typeof EducationRoute
   '/field-analysis': typeof FieldAnalysisRoute
+  '/kmap': typeof KmapRoute
   '/outreach': typeof OutreachRoute
   '/pricing': typeof PricingRoute
   '/solutions': typeof SolutionsRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/donation'
     | '/education'
     | '/field-analysis'
+    | '/kmap'
     | '/outreach'
     | '/pricing'
     | '/solutions'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/donation'
     | '/education'
     | '/field-analysis'
+    | '/kmap'
     | '/outreach'
     | '/pricing'
     | '/solutions'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/donation'
     | '/education'
     | '/field-analysis'
+    | '/kmap'
     | '/outreach'
     | '/pricing'
     | '/solutions'
@@ -181,6 +193,7 @@ export interface RootRouteChildren {
   DonationRoute: typeof DonationRoute
   EducationRoute: typeof EducationRoute
   FieldAnalysisRoute: typeof FieldAnalysisRoute
+  KmapRoute: typeof KmapRoute
   OutreachRoute: typeof OutreachRoute
   PricingRoute: typeof PricingRoute
   SolutionsRoute: typeof SolutionsRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FieldAnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kmap': {
+      id: '/kmap'
+      path: '/kmap'
+      fullPath: '/kmap'
+      preLoaderRoute: typeof KmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/outreach': {
       id: '/outreach'
       path: '/outreach'
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   DonationRoute: DonationRoute,
   EducationRoute: EducationRoute,
   FieldAnalysisRoute: FieldAnalysisRoute,
+  KmapRoute: KmapRoute,
   OutreachRoute: OutreachRoute,
   PricingRoute: PricingRoute,
   SolutionsRoute: SolutionsRoute,
