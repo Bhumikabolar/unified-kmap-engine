@@ -22,7 +22,7 @@ function forestProbabilities(input: CropModelInput) {
       const feature = tree.features[node] ?? 0;
       node = values[feature]! <= tree.thresholds[node]! ? tree.childrenLeft[node]! : tree.childrenRight[node]!;
     }
-    const leaf: number[] = (tree.values[node] ?? []) as number[];
+    const leaf = (tree.values[node] ?? []) as unknown as number[];
     const total = leaf.reduce((sum, value) => sum + value, 0) || 1;
     leaf.forEach((value, index) => { votes[index] += value / total; });
   }
