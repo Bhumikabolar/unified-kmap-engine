@@ -65,8 +65,8 @@ function KMapPage() {
     setError(null);
     setSurface(null);
     const key = `${lat},${lng}`;
-    checkSurface(lat, lng).then((s) => {
-      setSurface((prev) => prev ?? (s ? { key, kind: s } : null));
+    void checkSurface(lat, lng).then((s) => {
+      if (s) setSurface({ key, kind: s });
     });
     mutation.mutate({ lat, lng });
   };
@@ -104,6 +104,11 @@ function KMapPage() {
         <aside className="min-h-0 flex-1 border-t border-border lg:w-[420px] lg:flex-none lg:border-l lg:border-t-0">
           <DetailPanel
             data={data}
+            surface={
+              surface && data && surface.key === `${data.point.lat},${data.point.lng}`
+                ? surface.kind
+                : null
+            }
             loading={mutation.isPending}
             error={error}
             onClose={() => {
