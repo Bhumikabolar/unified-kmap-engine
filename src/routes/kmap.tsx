@@ -8,6 +8,7 @@ import { ZoneMap } from "@/components/kmap/ZoneMap";
 import { DetailPanel } from "@/components/kmap/DetailPanel";
 import { analyzePoint, type PointAnalysis } from "@/lib/analysis.functions";
 import { TALUK_NAMES } from "@/lib/geo";
+import { checkSurface, type Surface } from "@/lib/surface-check";
 
 const TITLE = "KMap — Coastal Karnataka Crop Advisor | AGROVA AI";
 const DESC =
@@ -32,6 +33,7 @@ function KMapPage() {
   const [focusTaluk, setFocusTaluk] = useState<string | null>(null);
   const [data, setData] = useState<PointAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [surface, setSurface] = useState<{ key: string; kind: Surface } | null>(null);
   const run = useServerFn(analyzePoint);
 
   const mutation = useMutation({
@@ -61,6 +63,11 @@ function KMapPage() {
     setSelected({ lat, lng });
     setData(null);
     setError(null);
+    setSurface(null);
+    const key = `${lat},${lng}`;
+    void checkSurface(lat, lng).then((s) => {
+      if (s) setSurface({ key, kind: s });
+    });
     mutation.mutate({ lat, lng });
   };
 
@@ -97,6 +104,11 @@ function KMapPage() {
         <aside className="min-h-0 flex-1 border-t border-border lg:w-[420px] lg:flex-none lg:border-l lg:border-t-0">
           <DetailPanel
             data={data}
+            surface={
+              surface && data && surface.key === `${data.point.lat},${data.point.lng}`
+                ? surface.kind
+                : null
+            }
             loading={mutation.isPending}
             error={error}
             onClose={() => {
