@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import {
+  Ban,
   Building2,
   CloudRain,
   Droplets,
@@ -28,6 +29,7 @@ import { useEffect, useState } from "react";
 
 import type { PointAnalysis } from "@/lib/analysis.functions";
 import { formatLatLng } from "@/lib/geo";
+import type { Surface } from "@/lib/surface-check";
 
 const KEY = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] as string | undefined;
 
@@ -201,13 +203,29 @@ function shortDate(iso: string) {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" });
 }
 
+const SURFACE_LAND: Record<Surface, { category: PointAnalysis["land"]["category"]; detail: string }> = {
+  water: { category: "Water body", detail: "Google Maps shows water at this exact spot." },
+  road: { category: "Road / paved surface", detail: "Google Maps shows a road at this exact spot." },
+  built: { category: "Built-up", detail: "Google Maps shows a building at this exact spot." },
+};
+
+const UNUSABLE: string[] = ["Water body", "Road / paved surface", "Built-up"];
+
+const UNUSABLE_MESSAGE: Record<string, string> = {
+  "Water body": "This spot is a river, lake, pond or other water body. Crops cannot be grown here.",
+  "Road / paved surface": "This spot is a road or paved surface. Crops cannot be grown here.",
+  "Built-up": "There is already a building or structure here. Crops cannot be grown here.",
+};
+
 export function DetailPanel({
   data,
+  surface = null,
   loading,
   error,
   onClose,
 }: {
   data: PointAnalysis | null;
+  surface?: Surface | null;
   loading: boolean;
   error: string | null;
   onClose: () => void;
@@ -251,16 +269,77 @@ export function DetailPanel({
     );
   }
 
-  const { place, soil, land: rawLand, weather, forecast, crops: rawCrops, climate } = data;
+  const { place, soil, land: serverLand, weather, forecast, crops: rawCrops, climate } = data;
+  const seen = surface ? SURFACE_LAND[surface] : null;
+  // What Google Maps draws at the exact spot beats a low/medium-confidence guess.
+  const rawLand =
+    seen && !(serverLand.confidence === "high" && !serverLand.agricultural)
+      ? { ...serverLand, ...seen, confidence: "high" as const, agricultural: false }
+      : serverLand;
   const chosen = OVERRIDES.find((o) => o.label === override);
   const land = chosen
     ? { ...rawLand, category: chosen.label as typeof rawLand.category, detail: chosen.detail, confidence: "high" as const, agricultural: chosen.agricultural }
     : rawLand;
   const crops = land.agricultural ? rawCrops : [];
   const Icon = CATEGORY_ICON[land.category] ?? MapPin;
+  const blocked = UNUSABLE.includes(land.category);
   const streetView = KEY
     ? `https://maps.googleapis.com/maps/api/streetview?size=640x300&location=${data.point.lat},${data.point.lng}&fov=90&radius=400&return_error_code=true&key=${KEY}`
     : null;
+
+  if (blocked) {
+    return (
+      <div className="flex h-full flex-col overflow-y-auto px-5 py-5">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <Icon className="h-5 w-5 text-destructive" />
+              <h2 className="text-lg font-semibold leading-tight text-foreground">
+                {land.category}
+              </h2>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {place.village ? `${place.village}, ` : ""}
+              {data.taluk} taluk · {data.district}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {formatLatLng(data.point.lat, data.point.lng)}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close details"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-destructive">
+            <Ban className="h-4 w-4" /> This land can't be used for farming
+          </div>
+          <p className="mt-2 text-sm text-foreground">{UNUSABLE_MESSAGE[land.category]}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Tap a field or open plot nearby to see soil, weather and crop advice.
+          </p>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Not right? It is actually:</span>
+          {OVERRIDES.filter((o) => o.label !== land.category).map((o) => (
+            <button
+              key={o.label}
+              onClick={() => setOverride(o.label)}
+              className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-secondary"
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const pastChart = weather.past.map((d) => ({
     day: shortDate(d.date),
