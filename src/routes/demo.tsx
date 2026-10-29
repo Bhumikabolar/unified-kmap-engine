@@ -763,7 +763,7 @@ function DemoPage() {
                                 <span className="text-sm font-medium">{med.name}</span>
                                 <Button size="sm" variant="hero" tabIndex={-1} asChild>
                                   <span>
-                                    <ShoppingCart /> Buy on {med.shop}
+                                    <ShoppingCart /> Buy
                                     <ExternalLink />
                                   </span>
                                 </Button>
