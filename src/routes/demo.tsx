@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Upload, Sparkles, MapPin, Loader2, Compass, CheckCircle2, RotateCcw } from "lucide-react";
+import { Upload, Sparkles, MapPin, Loader2, Compass, CheckCircle2, RotateCcw, ExternalLink, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -132,6 +132,8 @@ function recommend(field: FieldParameters, temperature: number, forecastRainfall
     .slice(0, 5);
 }
 
+type Medicine = { name: string; shop: string; url: string };
+
 const SAMPLE_DIAGNOSES = [
   {
     disease: "Early Blight (Alternaria solani)",
@@ -140,6 +142,18 @@ const SAMPLE_DIAGNOSES = [
     organic: "Neem oil 3% spray every 7 days; remove and burn infected lower leaves.",
     chemical: "Mancozeb 75% WP @ 2 g/L, two sprays 10 days apart.",
     prevention: "Rotate with non-solanaceous crops; drip irrigate to keep foliage dry.",
+    medicines: [
+      {
+        name: "Mancozeb 75% WP (contact fungicide)",
+        shop: "BigHaat",
+        url: "https://www.bighaat.com/search?q=mancozeb+75+wp",
+      },
+      {
+        name: "Neem oil 3% (organic alternative)",
+        shop: "Amazon India",
+        url: "https://www.amazon.in/s?k=neem+oil+pest+control+agriculture",
+      },
+    ] satisfies Medicine[],
   },
   {
     disease: "Bacterial Leaf Blight",
@@ -148,6 +162,18 @@ const SAMPLE_DIAGNOSES = [
     organic: "Pseudomonas fluorescens foliar spray; drain field for 2 days.",
     chemical: "Copper oxychloride @ 2.5 g/L with streptocycline.",
     prevention: "Use certified resistant seed; avoid excess nitrogen.",
+    medicines: [
+      {
+        name: "Copper oxychloride 50% WP (bactericide)",
+        shop: "BigHaat",
+        url: "https://www.bighaat.com/search?q=copper+oxychloride",
+      },
+      {
+        name: "Streptocycline 90% (antibiotic for blight)",
+        shop: "BigHaat",
+        url: "https://www.bighaat.com/search?q=streptocycline",
+      },
+    ] satisfies Medicine[],
   },
   {
     disease: "Leaf Rust (Puccinia spp.)",
@@ -156,6 +182,18 @@ const SAMPLE_DIAGNOSES = [
     organic: "Sulphur dust at first pustule appearance; widen row spacing.",
     chemical: "Propiconazole 25% EC @ 1 ml/L.",
     prevention: "Early sowing and resistant varieties reduce incidence.",
+    medicines: [
+      {
+        name: "Propiconazole 25% EC (systemic fungicide)",
+        shop: "BigHaat",
+        url: "https://www.bighaat.com/search?q=propiconazole+25+ec",
+      },
+      {
+        name: "Sulphur 80% WDG (organic-compatible)",
+        shop: "Amazon India",
+        url: "https://www.amazon.in/s?k=sulphur+80+wdg+fungicide",
+      },
+    ] satisfies Medicine[],
   },
 ];
 
@@ -697,7 +735,7 @@ function DemoPage() {
                           <Progress value={diagnosis.confidence} className="mt-2" />
                           <p className="mt-1 text-sm font-medium">{diagnosis.confidence}%</p>
                         </div>
-                        {[
+                         {[
                           ["Organic treatment", diagnosis.organic],
                           ["Chemical treatment", diagnosis.chemical],
                           ["Prevention", diagnosis.prevention],
@@ -709,6 +747,34 @@ function DemoPage() {
                             <p className="text-sm">{v}</p>
                           </div>
                         ))}
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Medicine to buy
+                          </p>
+                          <div className="mt-2 space-y-2">
+                            {diagnosis.medicines.map((med) => (
+                              <a
+                                key={med.name}
+                                href={med.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-between gap-3 rounded-xl border bg-secondary/40 px-3 py-2 transition-colors hover:bg-secondary/70"
+                              >
+                                <span className="text-sm font-medium">{med.name}</span>
+                                <Button size="sm" variant="hero" tabIndex={-1} asChild>
+                                  <span>
+                                    <ShoppingCart /> Buy on {med.shop}
+                                    <ExternalLink />
+                                  </span>
+                                </Button>
+                              </a>
+                            ))}
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Opens the product's shopping site in a new tab. Follow the dosage on
+                            the label.
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
